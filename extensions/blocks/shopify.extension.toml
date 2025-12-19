@@ -16,7 +16,7 @@ uid = "bb527596-014c-43cb-019c-ad511d95c080d0547a32"
 # https://shopify.dev/docs/api/checkout-ui-extensions/latest/extension-targets-overview
 
 [[extensions.targeting]]
-module = "./src/Checkout.jsx"
+module = "./src/Timer.tsx"
 target = "purchase.checkout.block.render"
 
 [extensions.capabilities]
@@ -44,9 +44,19 @@ api_access = true
 # your extension. Learn more:
 # https://shopify.dev/docs/api/checkout-ui-extensions/latest/configuration#settings-definition
 
-# [extensions.settings]
-# [[extensions.settings.fields]]
-# key = "banner_title"
-# type = "single_line_text_field"
-# name = "Banner title"
-# description = "Enter a title for the banner"
+[extensions.settings]
+[[extensions.settings.fields]]
+key = "date"
+type = "date"
+name = "Date"
+description = "By the end of the date"
+[[extensions.settings.fields]]
+key = "active_text"
+type = "single_line_text_field"
+name = "Text"
+description = "When the timer is active"
+[[extensions.settings.fields]]
+key = "expired_text"
+type = "single_line_text_field"
+name = "Text"
+description = "When the timer expired"
