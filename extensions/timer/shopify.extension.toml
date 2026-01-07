@@ -6,8 +6,8 @@
 api_version = "2025-10"
 
 [[extensions]]
-name = "blocks"
-handle = "blocks"
+name = "timer"
+handle = "timer"
 type = "ui_extension"
 uid = "bb527596-014c-43cb-019c-ad511d95c080d0547a32"
 
