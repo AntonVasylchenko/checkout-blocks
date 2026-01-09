@@ -31,7 +31,7 @@ export type ProductImage = {
 };
 
 export type ProductVariant = {
-  id:string,
+  id: string,
   barcode: string;
   availableForSale: boolean;
   compareAtPrice: Money | null;
@@ -57,7 +57,7 @@ export type VariantsCount = {
 
 export type Product = {
   id: string;
-  title:string
+  title: string
   handle: string;
   featuredImage: ProductImage
   availableForSale: boolean;
@@ -65,3 +65,8 @@ export type Product = {
   options: ProductOption[];
   variantsCount: VariantsCount;
 };
+
+
+export interface EventTargetButtonExpended extends EventTarget {
+  accessibilityLabel: "Next" | "Prev"
+}
