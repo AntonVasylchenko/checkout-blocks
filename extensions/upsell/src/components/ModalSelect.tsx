@@ -29,9 +29,10 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
         }
     })
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>[] | null>(initialOptions);
-    const [variant, setVariant] = useState<ProductVariant>(selectedVariant)
+    const [variant, setVariant] = useState<ProductVariant>(selectedVariant);
+    const [cachedVariants, setcachedVariants] = useState<Record<string, ProductVariant>>({});
 
-    const handleSelect = useCallback((event: Event) => {
+    const handleSelect = (event: Event) => {
         const target = event.currentTarget as SelectElement
         const attributes = getAttributes(target);
 
@@ -44,7 +45,8 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
         }
 
         handleChangeVariant()
-    }, [selectedOptions])
+    }
+
 
     const handleChangeVariant = () => {
         const selectedOptionsNormalized = selectedOptions.map((selectedOption) => {
@@ -59,9 +61,26 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             }
         }
 
+        const cachedKey = selectedOptionsNormalized.map(option => `${option.name}:${option.value}`).join('|');
+        if (cachedVariants[cachedKey]) {
+            setVariant(cachedVariants[cachedKey]);
+            return;
+        }
+
         shopify
             .query<QueryType>(getVariantQuery, queryConfig)
-            .then(response => setVariant(response.data.product.variant))
+            .then(response => {
+                const variantExists = response.data.product.variant;
+                if (!variantExists) {
+                    setVariant(prev => ({ ...prev, availableForSale: false }));
+                    return
+                };
+                setVariant(variantExists);
+                setcachedVariants((prev) => ({
+                    ...prev,
+                    [cachedKey]: variantExists
+                }))
+            })
             .catch(error => console.error(error));
 
     }
@@ -69,9 +88,9 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
         shopify.applyCartLinesChange({
             "type": "addCartLine",
             "quantity": 1,
-            "merchandiseId": id,
+            "merchandiseId": variant.id,
         })
-    }, [selectedOptions])
+    }, [selectedOptions, variant])
 
     return (
         <s-modal
@@ -109,27 +128,29 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                         )
                     })
                 }
-                <s-stack>
+                <s-stack direction="inline" justifyContent="space-between">
                     <s-text>Price:</s-text>
-                    {/* <s-text>{formatMoney(price.amount, price.currencyCode)}</s-text>
-                    <s-text>{variantId}</s-text> */}
+                    <s-text>{formatMoney(variant.price.amount, variant.price.currencyCode)}</s-text>
                 </s-stack>
             </s-stack>
-            <s-button
-                variant="primary"
-                slot="primary-action"
-                onClick={handleAddToCart}
-            >
-                Add+
-            </s-button>
-            <s-button
-                variant="secondary"
-                command="--hide"
-                commandFor={id}
-                slot="secondary-actions"
-            >
-                Close
-            </s-button>
+            <s-stack direction="inline" paddingBlockStart="base" gap="base" justifyContent="end">
+                <s-button
+                    variant="secondary"
+                    command="--hide"
+                    commandFor={id}
+                    slot="secondary-actions"
+                >
+                    Close
+                </s-button>
+                <s-button
+                    variant="primary"
+                    disabled={!variant.availableForSale}
+                    slot="primary-action"
+                    onClick={handleAddToCart}
+                >
+                    {variant.availableForSale ? "Add to cart" : "Sold out"}
+                </s-button>
+            </s-stack>
         </s-modal>
     )
 }

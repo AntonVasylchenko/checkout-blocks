@@ -1,11 +1,11 @@
 import '@shopify/ui-extensions/preact';
-import { Fragment, render } from "preact";
+import { render } from "preact";
 import { useEffect, useState, useCallback } from 'preact/hooks';
 import useGraphqlProducts from "../src/hook/useGraphqlProducts"
 import type { Product, EventTargetButtonExpended } from "./type"
 import useMetaobject from './hook/useMetaobject';
+import { Card } from './components';
 
-// 1. Export the extension
 export default async () => {
   render(<Extension />, document.body)
 };
@@ -54,18 +54,6 @@ function Extension() {
 
   }, [shopifyProducts, cartLines]);
 
-  const addCartLine = async (id: string) => {
-    try {
-      await shopify.applyCartLinesChange({
-        "type": "addCartLine",
-        "quantity": 1,
-        "merchandiseId": id,
-      });
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
-  }
-
   const handleSwipe = useCallback((event: Event) => {
     const direction = (event.target as EventTargetButtonExpended).accessibilityLabel === "Next" ? 1 : -1;
     setCurrentSlide(prev => prev + direction);
@@ -100,87 +88,33 @@ function Extension() {
               type='button'
               disabled={currentSlide == slides.length - 1}
               onClick={handleSwipe}
-
             >
               <s-icon type="arrow-right" />
             </s-clickable>
           </s-stack>
         </s-grid-item>
       </s-grid>
-      <s-grid
-        gridTemplateColumns="repeat(2, 48.5%)"
-        gridTemplateRows="1fr"
-        gap="base"
-        overflow="visible"
-        maxBlockSize="100%"
-        blockSize="100%"
-      >
-        {
-          slides[currentSlide].map(slide => {
-            return (
-              <s-grid-item key={slide.id}>
-                <s-stack alignItems="center" minBlockSize="100px" rowGap="base">
-                  <s-box maxBlockSize='100px' minInlineSize='100px' minBlockSize='100px' maxInlineSize='100px'>
-                    <s-image
-                      src={slide.featuredImage.url}
-                      aspectRatio="1/1"
-                      inlineSize="fill"
-                      objectFit="contain"
-                      alt={slide.featuredImage.altText || "Product image"}
-                      borderRadius="small"
-                    />
-                  </s-box>
-                  <s-box>
-                    <s-stack direction="inline" justifyContent='center' >{slide.title}</s-stack>
-                  </s-box>
-                  {
-                    slide.variantsCount.count != 1 &&
-                    <s-box>
-                      {
-                        slide.options.map(option => {
-                          return (
-                            <Fragment key={option.id}>
-                              <s-text>{option.name}</s-text>
-                              <s-text></s-text>
-                              <s-select label={option.name}>
-                                {
-                                  option.optionValues.map(optionValue => {
-                                    return (
-                                      <s-option
-                                        key={`${optionValue.id}-${option.name}`}
-                                        value={optionValue.name}>
-                                        {optionValue.name}
-                                      </s-option>
-                                    )
-                                  })
-                                }
-                              </s-select>
-                            </Fragment>
-
-                          )
-                        })
-                      }
-                    </s-box>
-                  }
-
-                  <s-box maxInlineSize="100%" minInlineSize="100%">
-                    <s-button
-                      disabled={!slide.availableForSale}
-                      inlineSize="fill"
-                      onClick={() => addCartLine(slide.selectedOrFirstAvailableVariant.id)}
-                      variant="primary"
-                    >
-                      ADD+
-                    </s-button>
-                  </s-box>
-                </s-stack>
-              </s-grid-item>
-            )
-          })
-        }
-      </s-grid>
+      <s-query-container>
+        <s-grid
+          gridTemplateColumns="@container (inline-size > 500px) 'repeat(2, 48.5%)', 'repeat(1, 100%)'"
+          gridTemplateRows="1fr"
+          id='s-grid'
+          gap="base"
+          overflow="visible"
+          maxBlockSize="100%"
+          blockSize="100%"
+        >
+          {
+            slides[currentSlide].map(slide => {
+              return (
+                <s-grid-item key={slide.id}>
+                  <Card slide={slide} shopify={shopify} />
+                </s-grid-item>
+              )
+            })
+          }
+        </s-grid>
+      </s-query-container>
     </s-section>
   )
-
-
 }

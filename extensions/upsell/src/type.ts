@@ -38,6 +38,10 @@ export type ProductVariant = {
   price: Money;
   currentlyNotInStock: boolean;
   image: ProductImage | null;
+  selectedOptions: {
+    name: string
+    value: string
+  }[]
 };
 
 export type ProductOptionValue = {
@@ -69,4 +73,7 @@ export type Product = {
 
 export interface EventTargetButtonExpended extends EventTarget {
   accessibilityLabel: "Next" | "Prev"
+}
+export interface EventTargetSelectExpended extends EventTarget {
+  value: string
 }

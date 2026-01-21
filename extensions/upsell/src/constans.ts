@@ -69,6 +69,10 @@ export const placeholderRequest = `
             id
             barcode
             availableForSale
+            selectedOptions {
+                name
+                value
+            }
             compareAtPrice {
                 amount
                 currencyCode
