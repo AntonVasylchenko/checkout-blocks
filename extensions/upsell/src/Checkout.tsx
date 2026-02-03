@@ -19,6 +19,7 @@ function Extension() {
   const [shopifyProducts, setShopifyProducts] = useState<Product[] | null>(null);
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [slides, setSlides] = useState<Product[][] | null>(null);
+  console.log("shopifyProducts", shopifyProducts)
 
   useEffect(() => {
     if (loading === false && body && variables && params) {
@@ -68,7 +69,7 @@ function Extension() {
     <s-section>
       <s-grid gridTemplateColumns="1fr auto" columnGap="base" padding="base">
         <s-grid-item>
-          <s-heading>Upsell</s-heading>
+          <s-heading>Save 20%</s-heading>
         </s-grid-item>
         <s-grid-item>
           <s-stack direction='inline' columnGap="small-200">

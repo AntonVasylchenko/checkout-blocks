@@ -16,11 +16,21 @@ function Card({ slide, shopify }: { slide: Product, shopify: Api }) {
                 "type": "addCartLine",
                 "quantity": 1,
                 "merchandiseId": id,
+                "attributes": [
+                    {
+                        "key": "_checkout-upsell",
+                        "value": id
+                    }
+                ]
             });
         } catch (error) {
             console.error('Failed to add to cart:', error);
         }
     }
+    const price = Number(slide.selectedOrFirstAvailableVariant.price.amount)
+    const discount = 0.2
+    const comparePrice = price - (price * discount);
+    console.log(slide.selectedOrFirstAvailableVariant.price.amount)
     return (
         <s-stack alignItems="center" minBlockSize="100px" rowGap="base">
             <s-box maxBlockSize='100px' minInlineSize='100px' minBlockSize='100px' maxInlineSize='100px'>
@@ -37,9 +47,15 @@ function Card({ slide, shopify }: { slide: Product, shopify: Api }) {
                 <s-stack direction="inline" justifyContent='center' >{slide.title}</s-stack>
             </s-box>
             <s-box>
-                <s-text>
-                    {formatMoney(slide.selectedOrFirstAvailableVariant.price.amount, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
-                </s-text>
+                <s-stack direction="inline" justifyContent='center' gap="base">
+                    <s-text>
+                        {formatMoney(comparePrice, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
+                    </s-text>
+                    <s-text>
+                        {formatMoney(price, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
+                    </s-text>
+                </s-stack>
+
             </s-box>
             {
                 slide.variantsCount.count != 1 &&

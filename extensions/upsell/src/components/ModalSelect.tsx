@@ -89,6 +89,12 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             "type": "addCartLine",
             "quantity": 1,
             "merchandiseId": variant.id,
+            "attributes": [
+                {
+                    "key": "_checkout-upsell",
+                    "value": variant.id
+                }
+            ]
         })
     }, [selectedOptions, variant])
 
