@@ -30,8 +30,21 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
     const comparePrice = price - (price * discount);
     
     return (
-        <s-stack alignItems="center" minBlockSize="100px" rowGap="base">
-            <s-box maxBlockSize='100px' minInlineSize='100px' minBlockSize='100px' maxInlineSize='100px'>
+        <s-stack
+            alignItems="center"
+            minBlockSize="100px"
+            rowGap="base"
+            accessibilityLabel={`Upsell product card for ${slide.title}`}
+            accessibilityRole="section"
+        >
+            <s-box
+                maxBlockSize='100px'
+                minInlineSize='100px'
+                minBlockSize='100px'
+                maxInlineSize='100px'
+                accessibilityLabel={`Product image for ${slide.title}`}
+                accessibilityRole="section"
+            >
                 <s-image
                     src={slide.featuredImage.url}
                     aspectRatio="1/1"
@@ -41,11 +54,24 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                     borderRadius="small"
                 />
             </s-box>
-            <s-box>
-                <s-stack direction="inline" justifyContent='center' >{slide.title}</s-stack>
+            <s-box accessibilityLabel={`Product title for ${slide.title}`} accessibilityRole="section">
+                <s-stack
+                    direction="inline"
+                    justifyContent='center'
+                    accessibilityLabel="Product title"
+                    accessibilityRole="section"
+                >
+                    {slide.title}
+                </s-stack>
             </s-box>
-            <s-box>
-                <s-stack direction="inline" justifyContent='center' gap="small">
+            <s-box accessibilityLabel={`Product price for ${slide.title}`} accessibilityRole="section">
+                <s-stack
+                    direction="inline"
+                    justifyContent='center'
+                    gap="small"
+                    accessibilityLabel="Product price"
+                    accessibilityRole="section"
+                >
                     <s-text>
                         {formatMoney(comparePrice, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
                     </s-text>
@@ -65,7 +91,12 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                     productId={slide.id}
                 />
             }
-            <s-box maxInlineSize="100%" minInlineSize="100%">
+            <s-box
+                maxInlineSize="100%"
+                minInlineSize="100%"
+                accessibilityLabel={`Actions for ${slide.title}`}
+                accessibilityRole="section"
+            >
                 <s-button
                     disabled={!slide.availableForSale}
                     inlineSize="fill"
@@ -78,6 +109,7 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                             : () =>
                                 addCartLine(slide.selectedOrFirstAvailableVariant.id)
                     }
+                    accessibilityLabel={`${hasMultipleVariants ? "Choose variants for" : "Add to cart"} ${slide.title}`}
                 >
                     {hasMultipleVariants ? "CHOOSE VARIANTS" : "ADD+"}
                 </s-button>

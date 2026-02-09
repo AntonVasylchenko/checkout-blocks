@@ -30,6 +30,8 @@ function Slider({ type, currentIndex, maxSlides, slides, handleSwipe, shopify }:
             padding="none"
         >
             <s-grid
+                accessibilityLabel={`Upsell products ${type} grid`}
+                accessibilityRole="unordered-list"
                 gridTemplateColumns={gridColumnsStyle}
                 gridTemplateRows="1fr"
                 gap="none"
@@ -42,6 +44,8 @@ function Slider({ type, currentIndex, maxSlides, slides, handleSwipe, shopify }:
                         return (
                             <s-grid-item
                                 key={slide.id}
+                                accessibilityLabel={`Upsell product ${slide.title}`}
+                                accessibilityRole="list-item"
                                 paddingInlineStart={index != 0 && slides.length != 1 ? "small-100" : "none"}
                                 paddingInlineEnd={index == 0 && slides.length != 1 ? "small-100" : "none"}
 
@@ -57,6 +61,8 @@ function Slider({ type, currentIndex, maxSlides, slides, handleSwipe, shopify }:
                 direction='inline'
                 columnGap="small-200"
                 justifyContent="center"
+                accessibilityLabel={`Upsell ${type} slider navigation`}
+                accessibilityRole="navigation"
             >
                 <s-clickable
                     inlineSize='20px'

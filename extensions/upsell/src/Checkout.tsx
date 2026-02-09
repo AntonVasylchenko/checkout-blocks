@@ -87,12 +87,13 @@ function Extension() {
 
   return (
     <s-query-container>
-      <s-section>
+      <s-section accessibilityLabel="Upsell offers">
         <s-text>{amountInCart}/{shopifyProducts.length}</s-text>
         {
           title && (
             <s-box
               accessibilityLabel="Heading"
+              accessibilityRole="header"
               background="transparent"
               padding="none"
               paddingBlockEnd="base"

@@ -108,8 +108,14 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             id={id}
             heading={heading}
             ref={modalRef}
+            accessibilityLabel={`Variant selection for ${heading}`}
         >
-            <s-stack direction="block" gap="base">
+            <s-stack
+                direction="block"
+                gap="base"
+                accessibilityLabel={`Variant options for ${heading}`}
+                accessibilityRole="section"
+            >
                 {
                     options.map((option, index, array) => {
                         const currentSelectedOption = selectedVariant.selectedOptions[index]
@@ -128,6 +134,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                                                     selected={currentSelectedOption.name === optionValue.name}
                                                     key={optionValue.id}
                                                     value={optionValue.name}
+                                                    accessibilityLabel={`${option.name} ${optionValue.name}`}
                                                 >
                                                     {optionValue.name}
                                                 </s-option>
@@ -140,17 +147,30 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                         )
                     })
                 }
-                <s-stack direction="inline" justifyContent="space-between">
+                <s-stack
+                    direction="inline"
+                    justifyContent="space-between"
+                    accessibilityLabel={`Selected variant price for ${heading}`}
+                    accessibilityRole="section"
+                >
                     <s-text>Price:</s-text>
                     <s-text>{formatMoney(variant.price.amount, variant.price.currencyCode)}</s-text>
                 </s-stack>
             </s-stack>
-            <s-stack direction="inline" paddingBlockStart="base" gap="base" justifyContent="end">
+            <s-stack
+                direction="inline"
+                paddingBlockStart="base"
+                gap="base"
+                justifyContent="end"
+                accessibilityLabel={`Variant actions for ${heading}`}
+                accessibilityRole="section"
+            >
                 <s-button
                     variant="secondary"
                     command="--hide"
                     commandFor={id}
                     slot="secondary-actions"
+                    accessibilityLabel={`Close variant selection for ${heading}`}
                 >
                     Close
                 </s-button>
@@ -160,6 +180,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                     command="--hide"
                     slot="primary-action"
                     onClick={handleAddToCart}
+                    accessibilityLabel={`${variant.availableForSale ? "Add" : "Sold out"} ${heading} to cart`}
                 >
                     {variant.availableForSale ? "Add to cart" : "Sold out"}
                 </s-button>
