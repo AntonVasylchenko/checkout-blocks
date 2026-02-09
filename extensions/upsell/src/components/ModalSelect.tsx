@@ -1,9 +1,10 @@
 import { Fragment } from "preact/jsx-runtime";
-import { useCallback, useState } from "preact/hooks";
+import { useCallback, useRef, useState } from "preact/hooks";
 import { formatMoney, getAttributes } from "../utils";
 
 import type { ProductOption, ProductVariant } from "../type"
 import type { SelectElement } from "@shopify/ui-extensions/build/ts/surfaces/checkout/components/Select";
+import type { ModalElement } from "@shopify/ui-extensions/build/ts/surfaces/checkout/components/Modal";
 import { getVariantQuery } from "../queries";
 
 interface ModalSelectProps {
@@ -31,6 +32,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>[] | null>(initialOptions);
     const [variant, setVariant] = useState<ProductVariant>(selectedVariant);
     const [cachedVariants, setcachedVariants] = useState<Record<string, ProductVariant>>({});
+    const modalRef = useRef<ModalElement | null>(null);
 
     const handleSelect = (event: Event) => {
         const target = event.currentTarget as SelectElement
@@ -46,7 +48,6 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
 
         handleChangeVariant()
     }
-
 
     const handleChangeVariant = () => {
         const selectedOptionsNormalized = selectedOptions.map((selectedOption) => {
@@ -84,7 +85,11 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             .catch(error => console.error(error));
 
     }
+
     const handleAddToCart = useCallback(() => {
+        if (modalRef.current) {
+            modalRef.current.hideOverlay();
+        }
         shopify.applyCartLinesChange({
             "type": "addCartLine",
             "quantity": 1,
@@ -96,12 +101,13 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                 }
             ]
         })
-    }, [selectedOptions, variant])
+    }, [selectedOptions, variant, modalRef])
 
     return (
         <s-modal
             id={id}
             heading={heading}
+            ref={modalRef}
         >
             <s-stack direction="block" gap="base">
                 {
@@ -151,6 +157,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                 <s-button
                     variant="primary"
                     disabled={!variant.availableForSale}
+                    command="--hide"
                     slot="primary-action"
                     onClick={handleAddToCart}
                 >

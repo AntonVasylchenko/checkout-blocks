@@ -7,13 +7,13 @@ declare module './src/Checkout.tsx' {
 }
 
 //@ts-ignore
-declare module './src/hook/useGraphqlProducts.ts' {
+declare module './src/type.ts' {
   const shopify: import('@shopify/ui-extensions/purchase.checkout.block.render').Api;
   const globalThis: { shopify: typeof shopify };
 }
 
 //@ts-ignore
-declare module './src/type.ts' {
+declare module './src/hook/useGraphqlProducts.ts' {
   const shopify: import('@shopify/ui-extensions/purchase.checkout.block.render').Api;
   const globalThis: { shopify: typeof shopify };
 }
@@ -26,6 +26,12 @@ declare module './src/hook/useMetaobject.ts' {
 
 //@ts-ignore
 declare module './src/components/index.ts' {
+  const shopify: import('@shopify/ui-extensions/purchase.checkout.block.render').Api;
+  const globalThis: { shopify: typeof shopify };
+}
+
+//@ts-ignore
+declare module './src/utils/index.ts' {
   const shopify: import('@shopify/ui-extensions/purchase.checkout.block.render').Api;
   const globalThis: { shopify: typeof shopify };
 }
@@ -49,7 +55,7 @@ declare module './src/components/ModalSelect.tsx' {
 }
 
 //@ts-ignore
-declare module './src/utils/index.ts' {
+declare module './src/components/Slider.tsx' {
   const shopify: import('@shopify/ui-extensions/purchase.checkout.block.render').Api;
   const globalThis: { shopify: typeof shopify };
 }

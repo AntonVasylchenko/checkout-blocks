@@ -1,13 +1,11 @@
 import type { Product } from "../type"
 import type { Api } from "@shopify/ui-extensions/purchase.checkout.block.render"
-
-import { Fragment } from "preact/jsx-runtime"
 import { formatMoney } from "../utils"
 import { ModalSelect } from "../components"
 
 
-function Card({ slide, shopify }: { slide: Product, shopify: Api }) {
-    const modalId = `modal-${slide.handle}`;
+function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, typeCard: "mobile" | "desktop" }) {
+    const modalId = `modal-${slide.handle}-${typeCard}`;
     const hasMultipleVariants = slide.variantsCount.count !== 1;
 
     const addCartLine = async (id: string) => {
@@ -30,7 +28,7 @@ function Card({ slide, shopify }: { slide: Product, shopify: Api }) {
     const price = Number(slide.selectedOrFirstAvailableVariant.price.amount)
     const discount = 0.2
     const comparePrice = price - (price * discount);
-    console.log(slide.selectedOrFirstAvailableVariant.price.amount)
+    
     return (
         <s-stack alignItems="center" minBlockSize="100px" rowGap="base">
             <s-box maxBlockSize='100px' minInlineSize='100px' minBlockSize='100px' maxInlineSize='100px'>
@@ -47,11 +45,11 @@ function Card({ slide, shopify }: { slide: Product, shopify: Api }) {
                 <s-stack direction="inline" justifyContent='center' >{slide.title}</s-stack>
             </s-box>
             <s-box>
-                <s-stack direction="inline" justifyContent='center' gap="base">
+                <s-stack direction="inline" justifyContent='center' gap="small">
                     <s-text>
                         {formatMoney(comparePrice, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
                     </s-text>
-                    <s-text>
+                    <s-text type="redundant">
                         {formatMoney(price, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
                     </s-text>
                 </s-stack>

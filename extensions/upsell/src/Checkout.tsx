@@ -1,10 +1,13 @@
+import type { ClickableElement } from "@shopify/ui-extensions/build/ts/surfaces/checkout/components/Clickable"
+import type { Product } from "./type"
+
 import '@shopify/ui-extensions/preact';
 import { render } from "preact";
 import { useEffect, useState, useCallback } from 'preact/hooks';
 import useGraphqlProducts from "../src/hook/useGraphqlProducts"
-import type { Product, EventTargetButtonExpended } from "./type"
 import useMetaobject from './hook/useMetaobject';
-import { Card } from './components';
+import { Slider, Skeleton } from './components';
+import { getAttributes } from './utils';
 
 export default async () => {
   render(<Extension />, document.body)
@@ -16,10 +19,12 @@ function Extension() {
   const { loading, data, error, products } = useMetaobject("gid://shopify/Metaobject/158516871443", shopify);
   const { body, variables, params } = useGraphqlProducts(products || []);
 
-  const [shopifyProducts, setShopifyProducts] = useState<Product[] | null>(null);
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const [slides, setSlides] = useState<Product[][] | null>(null);
-  console.log("shopifyProducts", shopifyProducts)
+  const [shopifyProducts, setShopifyProducts] = useState<Product[]>([]);
+  const [currentSlide, setCurrentSlide] = useState<Record<"desktopIndex" | "mobileIndex", number>>({ "desktopIndex": 0, "mobileIndex": 0 });
+  const [desktopSlides, setDesktopSlides] = useState<Product[][]>([]);
+  const [mobileSlides, setMobileSlides] = useState<Product[]>([]);
+  const [amountInCart, setAmountInCart] = useState<number>(0);
+  const title = "Save 20%"
 
   useEffect(() => {
     if (loading === false && body && variables && params) {
@@ -33,89 +38,90 @@ function Extension() {
   }, [loading, body, variables, params])
 
   useEffect(() => {
-    if (!shopifyProducts) return;
+    if (shopifyProducts.length === 0) return;
 
-    const itemsNotInCart = shopifyProducts.filter(product =>
-      !cartLines.some(cartLine =>
-        cartLine.merchandise.product.id === product.id
-      )
-    );
+    const itemsInCart: Record<"itemsYesInCart" | "itemsNotInCart", Product[]> = {
+      itemsNotInCart: [],
+      itemsYesInCart: []
+    }
 
+    shopifyProducts.filter(product => {
+      const cartHasItem: boolean = cartLines.some(cartLine => cartLine.merchandise.product.id === product.id);
+      const cartKey = cartHasItem ? "itemsYesInCart" : "itemsNotInCart";
+      itemsInCart[cartKey].push(product)
+    })
+
+    const { itemsNotInCart, itemsYesInCart } = itemsInCart
     const groupSlides = itemsNotInCart.map((_, index) =>
       itemsNotInCart.slice(index, index + 2)
     ).filter(group => itemsNotInCart.length != 1 ? group.length === 2 : group.length > 0);
 
-
-    setSlides(groupSlides)
+    setDesktopSlides(groupSlides);
+    setMobileSlides(itemsNotInCart);
+    setAmountInCart(itemsYesInCart.length);
     setCurrentSlide(prev => {
-      if (groupSlides.length === 0) return 0;
-      if (prev >= groupSlides.length) return groupSlides.length - 1;
-      return prev;
-    });
-
-  }, [shopifyProducts, cartLines]);
+      if (groupSlides.length === 0) prev.desktopIndex = 0;
+      if (itemsNotInCart.length === 0) prev.mobileIndex = 0;
+      if (prev.desktopIndex >= groupSlides.length) prev.desktopIndex = groupSlides.length - 1;
+      if (prev.mobileIndex >= itemsNotInCart.length) prev.desktopIndex = itemsNotInCart.length - 1
+      return prev
+    })
+  }, [shopifyProducts, cartLines, currentSlide]);
 
   const handleSwipe = useCallback((event: Event) => {
-    const direction = (event.target as EventTargetButtonExpended).accessibilityLabel === "Next" ? 1 : -1;
-    setCurrentSlide(prev => prev + direction);
+    const target = event.currentTarget as ClickableElement
+    const attributes = getAttributes(target);
+    const type = attributes["data-type"] as "desktopIndex" || "mobileIndex";
+
+    const direction = (event.target as ClickableElement).accessibilityLabel === "Next" ? 1 : -1;
+    setCurrentSlide(prev => ({ ...prev, [type]: prev[type] + direction }));
   }, [])
 
+  if (shopifyProducts.length == amountInCart) {
+    return null
+  }
 
-  if (shopifyProducts === null || slides == null || slides.length === 0) {
-    return <s-text>Loading ...</s-text>
+  if (desktopSlides.length === 0 || mobileSlides.length === 0) {
+    return <Skeleton />
   }
 
   return (
-    <s-section>
-      <s-grid gridTemplateColumns="1fr auto" columnGap="base" padding="base">
-        <s-grid-item>
-          <s-heading>Save 20%</s-heading>
-        </s-grid-item>
-        <s-grid-item>
-          <s-stack direction='inline' columnGap="small-200">
-            <s-clickable
-              inlineSize='20px'
+    <s-query-container>
+      <s-section>
+        <s-text>{amountInCart}/{shopifyProducts.length}</s-text>
+        {
+          title && (
+            <s-box
+              accessibilityLabel="Heading"
               background="transparent"
-              accessibilityLabel="Prev"
-              disabled={currentSlide == 0}
-              onClick={handleSwipe}
+              padding="none"
+              paddingBlockEnd="base"
             >
-              <s-icon type="arrow-left" />
-            </s-clickable>
-            <s-clickable
-              inlineSize='20px'
-              background="transparent"
-              accessibilityLabel="Next"
-              type='button'
-              disabled={currentSlide == slides.length - 1}
-              onClick={handleSwipe}
-            >
-              <s-icon type="arrow-right" />
-            </s-clickable>
-          </s-stack>
-        </s-grid-item>
-      </s-grid>
-      <s-query-container>
-        <s-grid
-          gridTemplateColumns="@container (inline-size > 500px) 'repeat(2, 48.5%)', 'repeat(1, 100%)'"
-          gridTemplateRows="1fr"
-          id='s-grid'
-          gap="base"
-          overflow="visible"
-          maxBlockSize="100%"
-          blockSize="100%"
-        >
-          {
-            slides[currentSlide].map(slide => {
-              return (
-                <s-grid-item key={slide.id}>
-                  <Card slide={slide} shopify={shopify} />
-                </s-grid-item>
-              )
-            })
-          }
-        </s-grid>
-      </s-query-container>
-    </s-section>
+              <s-heading accessibilityRole="heading">{title}</s-heading>
+            </s-box>
+          )
+        }
+
+
+        <Slider
+          type="desktop"
+          currentIndex={currentSlide.desktopIndex}
+          maxSlides={desktopSlides.length}
+          slides={desktopSlides[currentSlide.desktopIndex]}
+          handleSwipe={handleSwipe}
+          shopify={shopify}
+        />
+
+        <Slider
+          type="mobile"
+          currentIndex={currentSlide.mobileIndex}
+          maxSlides={mobileSlides.length}
+          slides={[mobileSlides[currentSlide.mobileIndex]]}
+          handleSwipe={handleSwipe}
+          shopify={shopify}
+        />
+      </s-section>
+    </s-query-container>
+
   )
 }

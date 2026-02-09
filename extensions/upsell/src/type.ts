@@ -70,10 +70,6 @@ export type Product = {
   variantsCount: VariantsCount;
 };
 
-
-export interface EventTargetButtonExpended extends EventTarget {
-  accessibilityLabel: "Next" | "Prev"
-}
 export interface EventTargetSelectExpended extends EventTarget {
   value: string
 }
