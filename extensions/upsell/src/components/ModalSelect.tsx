@@ -34,7 +34,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
     const [cachedVariants, setcachedVariants] = useState<Record<string, ProductVariant>>({});
     const modalRef = useRef<ModalElement | null>(null);
 
-    const handleSelect = (event: Event) => {
+    const handleSelect = async (event: Event) => {
         const target = event.currentTarget as SelectElement
         const attributes = getAttributes(target);
 
@@ -42,14 +42,16 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             const optionName = attributes["data-name"];
             const indexInArray = attributes["data-index"];
             const changedSelectedOptions = selectedOptions;
-            changedSelectedOptions[indexInArray] = { [optionName]: target.value };;
-            setSelectedOptions(() => [...changedSelectedOptions])
+            if (changedSelectedOptions != null) {
+                changedSelectedOptions[indexInArray] = { [optionName]: target.value };;
+                setSelectedOptions(changedSelectedOptions)
+            }
         }
 
-        handleChangeVariant()
+        await handleChangeVariant()
     }
 
-    const handleChangeVariant = () => {
+    const handleChangeVariant = async () => {
         const selectedOptionsNormalized = selectedOptions.map((selectedOption) => {
             const [name, value] = Object.entries(selectedOption)[0];
             return { name, value };

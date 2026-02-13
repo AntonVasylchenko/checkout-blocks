@@ -27,8 +27,8 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
     }
     const price = Number(slide.selectedOrFirstAvailableVariant.price.amount)
     const discount = 0.2
-    const comparePrice = price - (price * discount);
-    
+    const discountedPrice = price - (price * discount);
+
     return (
         <s-stack
             alignItems="center"
@@ -73,7 +73,7 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                     accessibilityRole="section"
                 >
                     <s-text>
-                        {formatMoney(comparePrice, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
+                        {formatMoney(discountedPrice, slide.selectedOrFirstAvailableVariant.price.currencyCode)}
                     </s-text>
                     <s-text type="redundant">
                         {formatMoney(price, slide.selectedOrFirstAvailableVariant.price.currencyCode)}

@@ -20,7 +20,7 @@ function Extension() {
   const { body, variables, params } = useGraphqlProducts(products || []);
 
   const [shopifyProducts, setShopifyProducts] = useState<Product[]>([]);
-  const [currentSlide, setCurrentSlide] = useState<Record<"desktopIndex" | "mobileIndex", number>>({ "desktopIndex": 0, "mobileIndex": 0 });
+  const [currentSlides, setCurrentSlides] = useState<Record<"desktopIndex" | "mobileIndex", number>>({ "desktopIndex": 0, "mobileIndex": 0 });
   const [desktopSlides, setDesktopSlides] = useState<Product[][]>([]);
   const [mobileSlides, setMobileSlides] = useState<Product[]>([]);
   const [amountInCart, setAmountInCart] = useState<number>(0);
@@ -45,7 +45,7 @@ function Extension() {
       itemsYesInCart: []
     }
 
-    shopifyProducts.filter(product => {
+    shopifyProducts.forEach(product => {
       const cartHasItem: boolean = cartLines.some(cartLine => cartLine.merchandise.product.id === product.id);
       const cartKey = cartHasItem ? "itemsYesInCart" : "itemsNotInCart";
       itemsInCart[cartKey].push(product)
@@ -59,22 +59,23 @@ function Extension() {
     setDesktopSlides(groupSlides);
     setMobileSlides(itemsNotInCart);
     setAmountInCart(itemsYesInCart.length);
-    setCurrentSlide(prev => {
-      if (groupSlides.length === 0) prev.desktopIndex = 0;
-      if (itemsNotInCart.length === 0) prev.mobileIndex = 0;
-      if (prev.desktopIndex >= groupSlides.length) prev.desktopIndex = groupSlides.length - 1;
-      if (prev.mobileIndex >= itemsNotInCart.length) prev.desktopIndex = itemsNotInCart.length - 1
-      return prev
+    setCurrentSlides(prev => {
+      const updatedCurrentSlides = prev;
+      if (groupSlides.length === 0) updatedCurrentSlides.desktopIndex = 0;
+      if (itemsNotInCart.length === 0) updatedCurrentSlides.mobileIndex = 0;
+      if (prev.desktopIndex >= groupSlides.length) updatedCurrentSlides.desktopIndex = groupSlides.length - 1;
+      if (prev.mobileIndex >= itemsNotInCart.length) updatedCurrentSlides.mobileIndex = itemsNotInCart.length - 1
+      return updatedCurrentSlides
     })
-  }, [shopifyProducts, cartLines, currentSlide]);
+  }, [shopifyProducts, cartLines]);
 
   const handleSwipe = useCallback((event: Event) => {
     const target = event.currentTarget as ClickableElement
     const attributes = getAttributes(target);
     const type = attributes["data-type"] as "desktopIndex" || "mobileIndex";
 
-    const direction = (event.target as ClickableElement).accessibilityLabel === "Next" ? 1 : -1;
-    setCurrentSlide(prev => ({ ...prev, [type]: prev[type] + direction }));
+    const direction = (event.currentTarget as ClickableElement).accessibilityLabel === "Next" ? 1 : -1;
+    setCurrentSlides(prev => ({ ...prev, [type]: prev[type] + direction }));
   }, [])
 
   if (shopifyProducts.length == amountInCart) {
@@ -88,7 +89,6 @@ function Extension() {
   return (
     <s-query-container>
       <s-section accessibilityLabel="Upsell offers">
-        <s-text>{amountInCart}/{shopifyProducts.length}</s-text>
         {
           title && (
             <s-box
@@ -106,18 +106,18 @@ function Extension() {
 
         <Slider
           type="desktop"
-          currentIndex={currentSlide.desktopIndex}
+          currentIndex={currentSlides.desktopIndex}
           maxSlides={desktopSlides.length}
-          slides={desktopSlides[currentSlide.desktopIndex]}
+          slides={desktopSlides[currentSlides.desktopIndex]}
           handleSwipe={handleSwipe}
           shopify={shopify}
         />
 
         <Slider
           type="mobile"
-          currentIndex={currentSlide.mobileIndex}
+          currentIndex={currentSlides.mobileIndex}
           maxSlides={mobileSlides.length}
-          slides={[mobileSlides[currentSlide.mobileIndex]]}
+          slides={[mobileSlides[currentSlides.mobileIndex]]}
           handleSwipe={handleSwipe}
           shopify={shopify}
         />
