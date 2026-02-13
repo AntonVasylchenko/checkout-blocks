@@ -1,8 +1,9 @@
 function Skeleton() {
-    return <s-section accessibilityLabel="Upsell offers loading">
+    const { i18n } = shopify;
+    return <s-section accessibilityLabel={i18n.translate("upsell.loading.sectionLabel")}>
         <s-stack
             gap="base"
-            accessibilityLabel="Loading upsell offers"
+            accessibilityLabel={i18n.translate("upsell.loading.label")}
             accessibilityRole="status"
         >
             <s-skeleton-paragraph />

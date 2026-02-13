@@ -22,6 +22,7 @@ type QueryType = {
 }
 
 function ModalSelect({ id, heading, options, selectedVariant, productId }: ModalSelectProps) {
+    const { i18n } = shopify;
     const initialOptions = selectedVariant.selectedOptions.map((option, index) => {
         const currentIndex = options[index].optionValues.findIndex(({ name }) => name == option.value);
         const name = option.name
@@ -29,8 +30,9 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             [name]: options[index].optionValues[currentIndex === - 1 ? 0 : currentIndex].name
         }
     })
-    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>[] | null>(initialOptions);
+    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>[]>(initialOptions);
     const [variant, setVariant] = useState<ProductVariant>(selectedVariant);
+    const [discountedPrice, setDiscountedPrice] = useState<number | null>((+variant.price.amount - (+variant.price.amount * 0.2)))
     const [cachedVariants, setcachedVariants] = useState<Record<string, ProductVariant>>({});
     const modalRef = useRef<ModalElement | null>(null);
 
@@ -40,19 +42,21 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
 
         if ("data-index" in attributes) {
             const optionName = attributes["data-name"];
-            const indexInArray = attributes["data-index"];
-            const changedSelectedOptions = selectedOptions;
-            if (changedSelectedOptions != null) {
-                changedSelectedOptions[indexInArray] = { [optionName]: target.value };;
-                setSelectedOptions(changedSelectedOptions)
+            const indexInArray = Number(attributes["data-index"]);
+            if (!Number.isNaN(indexInArray) && indexInArray >= 0) {
+                const nextSelectedOptions = [...selectedOptions];
+                nextSelectedOptions[indexInArray] = { [optionName]: target.value };
+                setSelectedOptions(nextSelectedOptions);
+                await handleChangeVariant(nextSelectedOptions);
+                return;
             }
         }
 
-        await handleChangeVariant()
+        await handleChangeVariant(selectedOptions)
     }
 
-    const handleChangeVariant = async () => {
-        const selectedOptionsNormalized = selectedOptions.map((selectedOption) => {
+    const handleChangeVariant = async (options: Record<string, string>[]) => {
+        const selectedOptionsNormalized = options.map((selectedOption) => {
             const [name, value] = Object.entries(selectedOption)[0];
             return { name, value };
         });
@@ -79,6 +83,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                     return
                 };
                 setVariant(variantExists);
+                setDiscountedPrice(+variantExists.price.amount - (+variantExists.price.amount * 0.2))
                 setcachedVariants((prev) => ({
                     ...prev,
                     [cachedKey]: variantExists
@@ -110,17 +115,17 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
             id={id}
             heading={heading}
             ref={modalRef}
-            accessibilityLabel={`Variant selection for ${heading}`}
+            accessibilityLabel={i18n.translate("upsell.modal.label", { productTitle: heading })}
         >
             <s-stack
                 direction="block"
                 gap="base"
-                accessibilityLabel={`Variant options for ${heading}`}
+                accessibilityLabel={i18n.translate("upsell.modal.optionsLabel", { productTitle: heading })}
                 accessibilityRole="section"
             >
                 {
                     options.map((option, index, array) => {
-                        const currentSelectedOption = selectedVariant.selectedOptions[index]
+                        const currentSelectedOption = selectedVariant.selectedOptions[index];
                         return (
                             <Fragment key={option.id}>
                                 <s-select
@@ -136,7 +141,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                                                     selected={currentSelectedOption.name === optionValue.name}
                                                     key={optionValue.id}
                                                     value={optionValue.name}
-                                                    accessibilityLabel={`${option.name} ${optionValue.name}`}
+                                                    accessibilityLabel={i18n.translate("upsell.modal.optionLabel", { optionName: option.name, optionValue: optionValue.name })}
                                                 >
                                                     {optionValue.name}
                                                 </s-option>
@@ -152,11 +157,18 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                 <s-stack
                     direction="inline"
                     justifyContent="space-between"
-                    accessibilityLabel={`Selected variant price for ${heading}`}
+                    accessibilityLabel={i18n.translate("upsell.modal.priceLabel", { productTitle: heading })}
                     accessibilityRole="section"
                 >
-                    <s-text>Price:</s-text>
-                    <s-text>{formatMoney(variant.price.amount, variant.price.currencyCode)}</s-text>
+                    <s-text>{i18n.translate("upsell.modal.priceText")}</s-text>
+                    <s-stack direction="inline" gap="small" >
+                        <s-text>
+                            {formatMoney(discountedPrice, variant.price.currencyCode)}
+                        </s-text>
+                        <s-text type="redundant">
+                            <s-text>{formatMoney(variant.price.amount, variant.price.currencyCode)}</s-text>
+                        </s-text>
+                    </s-stack>
                 </s-stack>
             </s-stack>
             <s-stack
@@ -164,7 +176,7 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                 paddingBlockStart="base"
                 gap="base"
                 justifyContent="end"
-                accessibilityLabel={`Variant actions for ${heading}`}
+                accessibilityLabel={i18n.translate("upsell.modal.actionsLabel", { productTitle: heading })}
                 accessibilityRole="section"
             >
                 <s-button
@@ -172,9 +184,9 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                     command="--hide"
                     commandFor={id}
                     slot="secondary-actions"
-                    accessibilityLabel={`Close variant selection for ${heading}`}
+                    accessibilityLabel={i18n.translate("upsell.modal.closeLabel", { productTitle: heading })}
                 >
-                    Close
+                    {i18n.translate("upsell.modal.close")}
                 </s-button>
                 <s-button
                     variant="primary"
@@ -182,9 +194,9 @@ function ModalSelect({ id, heading, options, selectedVariant, productId }: Modal
                     command="--hide"
                     slot="primary-action"
                     onClick={handleAddToCart}
-                    accessibilityLabel={`${variant.availableForSale ? "Add" : "Sold out"} ${heading} to cart`}
+                    accessibilityLabel={i18n.translate(variant.availableForSale ? "upsell.modal.addLabel" : "upsell.modal.soldOutLabel", { productTitle: heading })}
                 >
-                    {variant.availableForSale ? "Add to cart" : "Sold out"}
+                    {i18n.translate(variant.availableForSale ? "upsell.modal.add" : "upsell.modal.soldOut")}
                 </s-button>
             </s-stack>
         </s-modal>

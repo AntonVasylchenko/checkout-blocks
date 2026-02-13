@@ -1,6 +1,51 @@
 {
-  "welcome": "Welcome to the {{target}} extension!",
-  "iWouldLikeAFreeGiftWithMyOrder": "I would like to receive a free gift with my order",
-  "addAFreeGiftToMyOrder": "Add a free gift to my order",
-  "attributeChangesAreNotSupported": "Attribute changes are not supported in this checkout"
+  "upsell": {
+    "title": "Save 20%",
+    "sectionLabel": "Upsell offers",
+    "headingLabel": "Heading",
+    "slider": {
+      "type": {
+        "desktop": "desktop",
+        "mobile": "mobile"
+      },
+      "label": "Slider for {{type}}",
+      "gridLabel": "Upsell products {{type}} grid",
+      "itemLabel": "Upsell product {{productTitle}}",
+      "navLabel": "Upsell {{type}} slider navigation",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "card": {
+      "label": "Upsell product card for {{productTitle}}",
+      "imageLabel": "Product image for {{productTitle}}",
+      "imageAltFallback": "Product image",
+      "titleLabel": "Product title for {{productTitle}}",
+      "title": "Product title",
+      "priceLabel": "Product price for {{productTitle}}",
+      "price": "Product price",
+      "actionsLabel": "Actions for {{productTitle}}",
+      "chooseVariantsA11y": "Choose variants for {{productTitle}}",
+      "addToCartA11y": "Add to cart {{productTitle}}",
+      "chooseVariants": "CHOOSE VARIANTS",
+      "add": "ADD+"
+    },
+    "modal": {
+      "label": "Variant selection for {{productTitle}}",
+      "optionsLabel": "Variant options for {{productTitle}}",
+      "optionLabel": "{{optionName}} {{optionValue}}",
+      "priceLabel": "Selected variant price for {{productTitle}}",
+      "priceText": "Price:",
+      "actionsLabel": "Variant actions for {{productTitle}}",
+      "closeLabel": "Close variant selection for {{productTitle}}",
+      "close": "Close",
+      "addLabel": "Add {{productTitle}} to cart",
+      "soldOutLabel": "Sold out {{productTitle}}",
+      "add": "Add to cart",
+      "soldOut": "Sold out"
+    },
+    "loading": {
+      "sectionLabel": "Upsell offers loading",
+      "label": "Loading upsell offers"
+    }
+  }
 }

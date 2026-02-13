@@ -5,6 +5,7 @@ import { ModalSelect } from "../components"
 
 
 function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, typeCard: "mobile" | "desktop" }) {
+    const { i18n } = shopify;
     const modalId = `modal-${slide.handle}-${typeCard}`;
     const hasMultipleVariants = slide.variantsCount.count !== 1;
 
@@ -34,7 +35,7 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
             alignItems="center"
             minBlockSize="100px"
             rowGap="base"
-            accessibilityLabel={`Upsell product card for ${slide.title}`}
+            accessibilityLabel={i18n.translate("upsell.card.label", { productTitle: slide.title })}
             accessibilityRole="section"
         >
             <s-box
@@ -42,7 +43,7 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                 minInlineSize='100px'
                 minBlockSize='100px'
                 maxInlineSize='100px'
-                accessibilityLabel={`Product image for ${slide.title}`}
+                accessibilityLabel={i18n.translate("upsell.card.imageLabel", { productTitle: slide.title })}
                 accessibilityRole="section"
             >
                 <s-image
@@ -50,26 +51,26 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                     aspectRatio="1/1"
                     inlineSize="fill"
                     objectFit="contain"
-                    alt={slide.featuredImage.altText || "Product image"}
+                    alt={slide.featuredImage.altText || i18n.translate("upsell.card.imageAltFallback")}
                     borderRadius="small"
                 />
             </s-box>
-            <s-box accessibilityLabel={`Product title for ${slide.title}`} accessibilityRole="section">
+            <s-box accessibilityLabel={i18n.translate("upsell.card.titleLabel", { productTitle: slide.title })} accessibilityRole="section">
                 <s-stack
                     direction="inline"
                     justifyContent='center'
-                    accessibilityLabel="Product title"
+                    accessibilityLabel={i18n.translate("upsell.card.title")}
                     accessibilityRole="section"
                 >
                     {slide.title}
                 </s-stack>
             </s-box>
-            <s-box accessibilityLabel={`Product price for ${slide.title}`} accessibilityRole="section">
+            <s-box accessibilityLabel={i18n.translate("upsell.card.priceLabel", { productTitle: slide.title })} accessibilityRole="section">
                 <s-stack
                     direction="inline"
                     justifyContent='center'
                     gap="small"
-                    accessibilityLabel="Product price"
+                    accessibilityLabel={i18n.translate("upsell.card.price")}
                     accessibilityRole="section"
                 >
                     <s-text>
@@ -94,7 +95,7 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
             <s-box
                 maxInlineSize="100%"
                 minInlineSize="100%"
-                accessibilityLabel={`Actions for ${slide.title}`}
+                accessibilityLabel={i18n.translate("upsell.card.actionsLabel", { productTitle: slide.title })}
                 accessibilityRole="section"
             >
                 <s-button
@@ -109,9 +110,9 @@ function Card({ slide, shopify, typeCard }: { slide: Product, shopify: Api, type
                             : () =>
                                 addCartLine(slide.selectedOrFirstAvailableVariant.id)
                     }
-                    accessibilityLabel={`${hasMultipleVariants ? "Choose variants for" : "Add to cart"} ${slide.title}`}
+                    accessibilityLabel={i18n.translate(hasMultipleVariants ? "upsell.card.chooseVariantsA11y" : "upsell.card.addToCartA11y", { productTitle: slide.title })}
                 >
-                    {hasMultipleVariants ? "CHOOSE VARIANTS" : "ADD+"}
+                    {i18n.translate(hasMultipleVariants ? "upsell.card.chooseVariants" : "upsell.card.add")}
                 </s-button>
             </s-box>
         </s-stack>
